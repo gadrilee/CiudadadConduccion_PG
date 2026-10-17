@@ -6,6 +6,15 @@ Actividad práctica de programación gráfica: ampliación de la ciudad del proy
 (Java 17, Maven, LWJGL 3.3.3, OpenGL 3.3 Core). Toda la geometría se genera con código a partir de un
 cubo unitario; no se usan imágenes ni modelos externos.
 
+## Video de demostración
+
+Ejecución completa del juego, desde la pantalla de inicio hasta la victoria:
+
+<video src="src/main/resources/VideoDemo.mp4" controls width="720"></video>
+
+Si el video no se reproduce en la vista previa, se puede abrir directamente:
+[VideoDemo.mp4](src/main/resources/VideoDemo.mp4).
+
 ## Ejecución
 
 Requisitos: JDK 17 o superior, Maven y una tarjeta gráfica con OpenGL 3.3. Desde la carpeta que contiene `pom.xml`:
@@ -150,7 +159,7 @@ Cada cuadro: eventos, `deltaTime`, actualización del modelo, escena 3D, minimap
 
 ## Recursos externos
 
-- Proyecto base del profesor (`clase1` a `clase4`): estructura del cubo con normales, shaders de
+- Proyecto base del Ing. Kenji Kawaida Villegas (`clase1` a `clase4`): estructura del cubo con normales, shaders de
   transformación e iluminación, colisión círculo-rectángulo, minimapa con scissor y entregas. Se reorganizó en
   la arquitectura descrita arriba.
 - [LWJGL 3.3.3](https://www.lwjgl.org/) (GLFW y OpenGL), descargada por Maven.
