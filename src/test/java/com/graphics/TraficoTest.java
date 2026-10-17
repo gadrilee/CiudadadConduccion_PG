@@ -27,7 +27,7 @@ public class TraficoTest extends TestCase {
             trafico.actualizar(dt, null);
             for (VehiculoAutonomo vehiculo : trafico.vehiculos()) {
                 assertTrue("Vehículo fuera de la calle en " + vehiculo.x() + ", " + vehiculo.z(),
-                    colisiones.puedeCircular(vehiculo.x(), vehiculo.z(), VehiculoAutonomo.RADIO));
+                    colisiones.puedeUbicar(vehiculo.forma()));
             }
         }
         for (VehiculoAutonomo vehiculo : trafico.vehiculos()) {
@@ -49,9 +49,24 @@ public class TraficoTest extends TestCase {
         VehiculoAutonomo vehiculo = trafico.vehiculos().get(0);
         float x = vehiculo.x();
         float z = vehiculo.z();
-        // Acercarse hasta tocarlo está prohibido; alejarse siempre se permite.
-        assertFalse(trafico.permite(x + 5, z, x + 3, z, Auto.RADIO));
-        assertTrue(trafico.permite(x + 3, z, x + 4, z, Auto.RADIO));
+        float a = vehiculo.angulo();
+        float ladoX = (float) Math.cos(a);
+        float ladoZ = -(float) Math.sin(a);
+        // Acercarse por el costado hasta solaparse está prohibido; si ya se tocan, alejarse se permite.
+        assertFalse(trafico.permite(Auto.forma(x + ladoX * 5, z + ladoZ * 5, a), Auto.forma(x + ladoX, z + ladoZ, a)));
+        assertTrue(trafico.permite(Auto.forma(x + ladoX, z + ladoZ, a), Auto.forma(x + ladoX * 2, z + ladoZ * 2, a)));
+    }
+
+    /** Lado a lado, en paralelo: cabe con solo unos centímetros de separación (antes el círculo lo impedía). */
+    public void testSePuedePasarAlLadoDeUnVehiculo() {
+        Trafico trafico = new Trafico(mapa);
+        VehiculoAutonomo vehiculo = trafico.vehiculos().get(0);
+        float a = vehiculo.angulo();
+        float separacion = 2 * Auto.MEDIO_ANCHO + 0.05f;
+        float x = vehiculo.x() + (float) Math.cos(a) * separacion;
+        float z = vehiculo.z() - (float) Math.sin(a) * separacion;
+        assertTrue(trafico.permite(Auto.forma(x, z, a), Auto.forma(x + vehiculo.direccionX() * 0.1f,
+            z + vehiculo.direccionZ() * 0.1f, a)));
     }
 
     public void testFrenaSiElJugadorEstaDelante() {

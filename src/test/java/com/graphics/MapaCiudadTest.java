@@ -70,20 +70,28 @@ public class MapaCiudadTest extends TestCase {
             int fila = mapa.indice(destino[1]);
             int columna = mapa.indice(destino[0]);
             assertTrue("Destino sin acceso: " + destino[0] + ", " + destino[1], visitada[fila][columna]);
-            assertTrue(colisiones.puedeCircular(destino[0], destino[1], Auto.RADIO));
+            assertTrue(colisiones.puedeUbicar(Auto.forma(destino[0], destino[1], 0)));
         }
     }
 
     public void testLimitesYObstaculos() {
-        assertFalse(colisiones.puedeCircular(-40, -40, Auto.RADIO));          // centro de un edificio
-        assertFalse(colisiones.puedeCircular(0, -40, Auto.RADIO));            // centro de un parque
-        assertFalse(colisiones.puedeCircular(-46.5f, -40, Auto.RADIO));       // invade la acera
-        assertTrue(colisiones.puedeCircular(-47, -40, Auto.RADIO));           // separado de la acera
-        assertFalse(colisiones.puedeCircular(54, 0, Auto.RADIO));             // borde este
-        assertFalse(colisiones.puedeCircular(0, -56, Auto.RADIO));            // fuera por el norte
+        float norte = 0;
+        float oeste = (float) (Math.PI / 2);
+        assertFalse(colisiones.puedeUbicar(Auto.forma(-40, -40, norte)));      // centro de un edificio
+        assertFalse(colisiones.puedeUbicar(Auto.forma(0, -40, norte)));        // centro de un parque
+        assertFalse(colisiones.puedeUbicar(Auto.forma(-45.5f, -40, norte)));   // invade la acera
+        assertFalse(colisiones.puedeUbicar(Auto.forma(54.5f, 0, norte)));      // borde este
+        assertFalse(colisiones.puedeUbicar(Auto.forma(0, -56, norte)));        // fuera por el norte
         for (float z = -50; z <= 50; z += 0.5f) {
-            assertTrue(colisiones.puedeCircular(-50, z, Auto.RADIO));         // avenida oeste completa
-            assertTrue(colisiones.puedeCircular(z, 30, Auto.RADIO));          // avenida nueva al sur
+            assertTrue(colisiones.puedeUbicar(Auto.forma(-50, z, norte)));     // avenida oeste completa
+            assertTrue(colisiones.puedeUbicar(Auto.forma(z, 30, oeste)));      // avenida nueva al sur
         }
+    }
+
+    /** La forma es el rectángulo real del auto: puede ir pegado a la acera, pero no atravesada. */
+    public void testElAutoPuedeIrPegadoALaAcera() {
+        float pegado = -45 - Auto.MEDIO_ANCHO - 0.02f;
+        assertTrue(colisiones.puedeUbicar(Auto.forma(pegado, -40, 0)));
+        assertFalse(colisiones.puedeUbicar(Auto.forma(pegado, -40, (float) (Math.PI / 2))));
     }
 }

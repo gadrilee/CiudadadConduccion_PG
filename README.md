@@ -89,6 +89,11 @@ y la escala del minimapa (`uMitadMapa`) leen ese valor. Cambiar la matriz a 13x1
   orientación), el destino activo (dorado) y el tráfico (blanco). Su tamaño se recalcula al redimensionar y
   al terminar se restauran el viewport, el scissor y el modo del shader.
 - **Reinicio (R):** restaura posición, orientación y velocidad del auto, las entregas, el cronómetro y el tráfico.
+- **Colisiones precisas:** cada vehículo choca con un **rectángulo girado** de su tamaño real
+  (auto 2.0 x 2.72 m contando ruedas y faros; chata 1.94 x 2.12 m), y las manzanas son rectángulos de 10 x 10 m.
+  Se comprueba con el **teorema del eje separador**: dos rectángulos no se tocan si en alguno de sus 4 ejes
+  (los lados de cada uno) sus "sombras" no se solapan. Así el auto puede ir pegado a la acera o pasar al lado
+  de otro auto sin espacio invisible. Si un paso se rechaza, también se deshace el giro de ese cuadro.
 - **Movimiento por tiempo:** toda la simulación usa `deltaTime` (limitado a 50 ms). Una prueba verifica que
   1 s de aceleración a 30 y a 120 fps produce el mismo recorrido.
 - **Indicador en el título:** velocidad, día/noche, faros, entregas, tiempo y sector.
@@ -108,7 +113,7 @@ y la escala del minimapa (`uMitadMapa`) leen ese valor. Cambiar la matriz a 13x1
   Se modela como una **barra rígida**: el enganche está 1.5 m detrás del centro del auto y la chata se coloca
   siempre a 1.9 m del enganche, mirando hacia él. Por eso en las curvas gira menos que el auto y "corta" la
   esquina por dentro, como un remolque real. El ángulo entre ambos se limita a unos 70° para que no se doble
-  sobre el auto. Tiene su propio círculo de colisión (radio 1.2): si la chata chocaría contra un edificio,
+  sobre el auto. Tiene su propio rectángulo de colisión (1.94 x 2.12 m): si la chata chocaría contra un edificio,
   el borde o un auto, el paso se rechaza y **el auto se detiene**. La carga reduce la aceleración al 80 %,
   sus luces traseras se encienden con los faros, aparece en el minimapa y el tráfico frena si la tiene delante.
 
@@ -120,7 +125,7 @@ El código se organiza por responsabilidad. El **modelo no usa OpenGL**, por eso
 com.graphics
   Main                punto de entrada
   app/                Aplicacion (ciclo de vida y orquestación), Ventana, Entrada, EstadoJuego, Sonidos
-  mundo/              MapaCiudad, Manzana, TipoCelda, Sector, Colisiones, Transitable
+  mundo/              MapaCiudad, Manzana, TipoCelda, Sector, Colisiones, Rectangulo, Transitable
   vehiculo/           Auto (física), Chata (remolque), ControlesAuto
   trafico/            Ruta, VehiculoAutonomo, Trafico
   juego/              Entregas
@@ -139,8 +144,8 @@ Cada cuadro: eventos, `deltaTime`, actualización del modelo, escena 3D, minimap
 - Los semáforos son decorativos: ni el jugador ni el tráfico se detienen en rojo.
 - El tráfico sigue rutas fijas. Si dos autos quedan bloqueados entre sí durante más de 3 s, uno ignora al otro
   un momento para evitar un bloqueo permanente (pueden superponerse brevemente).
-- La colisión del auto y de la chata es un círculo cada uno; al chocar se detienen, sin rebote. El auto y
-  su chata no chocan entre sí: lo evita el límite de ángulo del enganche.
+- Al chocar, el auto se detiene sin rebote ni deslizamiento: para despegarse de una pared hay que retroceder.
+  El auto y su chata no chocan entre sí: lo evita el límite de ángulo del enganche.
 - No hay peatones ni ruedas animadas. El audio usa WAV PCM de 16 bits con `javax.sound.sampled` (el JDK no reproduce MP3).
 
 ## Recursos externos

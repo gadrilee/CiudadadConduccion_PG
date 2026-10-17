@@ -193,10 +193,8 @@ public class Aplicacion {
         ControlesAuto controles = entrada.controlesAuto();
         boolean choque = auto.actualizar(deltaTime, controles, via);
         if (choque && esperaChoque == 0) {
-            float delanteX = auto.x() + auto.frenteX() * (Auto.RADIO + 0.5f);
-            float delanteZ = auto.z() + auto.frenteZ() * (Auto.RADIO + 0.5f);
-            boolean contraAuto = !trafico.permite(auto.x(), auto.z(), delanteX, delanteZ, Auto.RADIO)
-                || trafico.toca(chata.x(), chata.z(), Chata.RADIO + 0.5f);
+            boolean contraAuto = trafico.toca(auto.forma().agrandado(0.3f))
+                || trafico.toca(chata.forma().agrandado(0.3f));
             sonidos.efecto(contraAuto ? Sonidos.CHOQUE_AUTO : Sonidos.CHOQUE_EDIFICIO);
             esperaChoque = PAUSA_ENTRE_CHOQUES;
         }

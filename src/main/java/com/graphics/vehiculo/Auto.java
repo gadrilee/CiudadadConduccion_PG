@@ -1,5 +1,6 @@
 package com.graphics.vehiculo;
 
+import com.graphics.mundo.Rectangulo;
 import com.graphics.mundo.Transitable;
 
 /**
@@ -10,8 +11,10 @@ public class Auto {
 
     public static final float INICIO_X = -50;
     public static final float INICIO_Z = 50;
-    /** Radio del círculo que contiene todas las piezas del auto. */
-    public static final float RADIO = 1.65f;
+    /** Medio ancho del auto contando las ruedas (forma de colisión). */
+    public static final float MEDIO_ANCHO = 1.0f;
+    /** Medio largo del auto, de los faros a las luces traseras. */
+    public static final float MEDIO_LARGO = 1.36f;
 
     private static final float ACELERACION = 9;
     private static final float RESISTENCIA = 0.7f;
@@ -71,12 +74,13 @@ public class Auto {
         velocidad = Math.max(VELOCIDAD_REVERSA, Math.min(VELOCIDAD_MAXIMA, velocidad));
 
         // El giro es proporcional a la velocidad; en reversa se invierte como en un auto real.
+        float anguloAnterior = angulo;
         angulo += controles.direccion() * velocidad * SENSIBILIDAD_GIRO * deltaTime;
 
         float siguienteX = x + frenteX() * velocidad * deltaTime;
         float siguienteZ = z + frenteZ() * velocidad * deltaTime;
         // El paso solo se acepta si caben los dos: un choque de la chata también frena al auto.
-        boolean autoLibre = via.permite(x, z, siguienteX, siguienteZ, RADIO);
+        boolean autoLibre = via.permite(forma(x, z, anguloAnterior), forma(siguienteX, siguienteZ, angulo));
         boolean chataLibre = chata == null || chata.puedeSeguir(siguienteX, siguienteZ, angulo, via);
         if (autoLibre && chataLibre) {
             x = siguienteX;
@@ -86,9 +90,21 @@ public class Auto {
             }
             return false;
         }
+        // Se deshace también el giro: girar en el sitio podría meter una esquina en el obstáculo.
+        angulo = anguloAnterior;
         boolean choque = Math.abs(velocidad) > 0.05f;
         velocidad = 0;
         return choque;
+    }
+
+    /** Rectángulo de colisión del auto en su posición actual. */
+    public Rectangulo forma() {
+        return forma(x, z, angulo);
+    }
+
+    /** Rectángulo de colisión que tendría el auto en (x, z) girado {@code angulo}. */
+    public static Rectangulo forma(float x, float z, float angulo) {
+        return new Rectangulo(x, z, angulo, MEDIO_ANCHO, MEDIO_LARGO);
     }
 
     public float frenteX() {

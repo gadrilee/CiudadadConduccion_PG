@@ -20,7 +20,7 @@ public class ChataTest extends TestCase {
         assertEquals(Auto.INICIO_X, chata.x(), 1e-4f);
         assertEquals(Auto.INICIO_Z + Chata.DISTANCIA_ENGANCHE + Chata.LARGO_LANZA, chata.z(), 1e-4f);
         assertEquals(auto.angulo(), chata.angulo(), 0f);
-        assertTrue(colisiones.puedeCircular(chata.x(), chata.z(), Chata.RADIO));
+        assertTrue(colisiones.puedeUbicar(chata.forma()));
     }
 
     /** Al girar, la chata va por detrás del auto, a distancia fija del enganche y sin doblarse de más. */
@@ -50,8 +50,9 @@ public class ChataTest extends TestCase {
         }
         Chata chata = auto.chata();
         assertEquals(0f, auto.velocidad(), 0f);
-        assertTrue(colisiones.puedeCircular(chata.x(), chata.z(), Chata.RADIO));
-        // El auto solo no habría parado hasta z = limite - RADIO; la chata lo frena antes.
-        assertTrue(auto.z() < mapa.limite() - Auto.RADIO - 1);
+        assertTrue(colisiones.puedeUbicar(chata.forma()));
+        // La chata queda pegada al borde y el auto, que solo no habría parado, se detiene antes.
+        assertEquals(mapa.limite(), chata.z() + Chata.MEDIO_LARGO, 0.05f);
+        assertTrue(auto.z() < mapa.limite() - Auto.MEDIO_LARGO - 1);
     }
 }

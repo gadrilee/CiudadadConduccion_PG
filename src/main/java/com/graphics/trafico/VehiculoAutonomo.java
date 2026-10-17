@@ -1,12 +1,13 @@
 package com.graphics.trafico;
 
+import com.graphics.mundo.Rectangulo;
+import com.graphics.vehiculo.Auto;
+
 /**
  * Auto que recorre una {@link Ruta} sin intervención del usuario. La posición avanza exactamente
  * sobre los tramos (nunca sale de la calle) y la orientación gira suave hacia el tramo actual.
  */
 public class VehiculoAutonomo {
-
-    public static final float RADIO = 1.65f;
 
     private static final float ACELERACION = 6;
     private static final float FRENADO = 14;
@@ -133,6 +134,11 @@ public class VehiculoAutonomo {
         float dz = ruta.z(destino) - z;
         float largo = (float) Math.sqrt(dx * dx + dz * dz);
         return largo > 1e-4f ? dz / largo : -(float) Math.cos(angulo);
+    }
+
+    /** Rectángulo de colisión: se dibuja con el mismo modelo que el auto del jugador. */
+    public Rectangulo forma() {
+        return Auto.forma(x, z, angulo);
     }
 
     public float x() {

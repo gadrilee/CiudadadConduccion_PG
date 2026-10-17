@@ -36,8 +36,8 @@ public class AutoTest extends TestCase {
 
     public void testElBordeDetieneAlAuto() {
         Auto auto = simular(60, 20);
-        assertTrue(auto.z() >= -mapa.limite() + Auto.RADIO);
-        assertTrue(colisiones.puedeCircular(auto.x(), auto.z(), Auto.RADIO));
+        assertTrue(auto.z() >= -mapa.limite() + Auto.MEDIO_LARGO);
+        assertTrue(colisiones.puedeUbicar(auto.forma()));
     }
 
     public void testUnEdificioDetieneAlAuto() {
@@ -47,8 +47,10 @@ public class AutoTest extends TestCase {
         for (int i = 0; i < 600; i++) {
             auto.actualizar(1 / 60f, ACELERAR, colisiones);
         }
-        assertTrue(auto.x() < -45 - Auto.RADIO + 0.01f);
-        assertTrue(colisiones.puedeCircular(auto.x(), auto.z(), Auto.RADIO));
+        assertTrue(colisiones.puedeUbicar(auto.forma()));
+        // Se detiene pegado a la acera: el frente queda a menos de 5 cm.
+        float frente = auto.x() + Auto.MEDIO_LARGO;
+        assertEquals(-45, frente, 0.05f);
     }
 
     private Auto simular(int fps, float segundos) {

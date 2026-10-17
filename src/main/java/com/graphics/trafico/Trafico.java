@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.graphics.mundo.MapaCiudad;
+import com.graphics.mundo.Rectangulo;
 import com.graphics.mundo.Transitable;
 import com.graphics.vehiculo.Auto;
 import com.graphics.vehiculo.Chata;
@@ -68,35 +69,34 @@ public class Trafico implements Transitable {
         return adelante > 0 && adelante < ALCANCE_DETECCION && lateral < ANCHO_DETECCION;
     }
 
-    /** Bloquea al jugador si se acercaría a un auto más de la suma de radios (alejarse siempre se permite). */
+    /**
+     * Bloquea al jugador si su rectángulo tocaría un auto. Si ya se estaban tocando (el auto autónomo
+     * se le echó encima), se permite alejarse para no quedar atrapado.
+     */
     @Override
-    public boolean permite(float desdeX, float desdeZ, float haciaX, float haciaZ, float radio) {
-        float minimo = radio + VehiculoAutonomo.RADIO;
+    public boolean permite(Rectangulo desde, Rectangulo hacia) {
         for (VehiculoAutonomo vehiculo : vehiculos) {
-            float nueva = distanciaCuadrada(haciaX, haciaZ, vehiculo);
-            float actual = distanciaCuadrada(desdeX, desdeZ, vehiculo);
-            if (nueva < minimo * minimo && nueva < actual) {
+            Rectangulo otro = vehiculo.forma();
+            if (!hacia.choca(otro)) {
+                continue;
+            }
+            boolean yaSeTocaban = desde.choca(otro);
+            boolean seAcerca = hacia.distanciaCuadrada(otro) < desde.distanciaCuadrada(otro);
+            if (!yaSeTocaban || seAcerca) {
                 return false;
             }
         }
         return true;
     }
 
-    /** ¿Algún auto toca un círculo de {@code radio} en (x, z)? Sirve para elegir el sonido del choque. */
-    public boolean toca(float x, float z, float radio) {
-        float minimo = radio + VehiculoAutonomo.RADIO;
+    /** ¿Algún auto toca este rectángulo? Sirve para elegir el sonido del choque. */
+    public boolean toca(Rectangulo forma) {
         for (VehiculoAutonomo vehiculo : vehiculos) {
-            if (distanciaCuadrada(x, z, vehiculo) < minimo * minimo) {
+            if (forma.choca(vehiculo.forma())) {
                 return true;
             }
         }
         return false;
-    }
-
-    private static float distanciaCuadrada(float x, float z, VehiculoAutonomo vehiculo) {
-        float dx = x - vehiculo.x();
-        float dz = z - vehiculo.z();
-        return dx * dx + dz * dz;
     }
 
     public void reiniciar() {

@@ -1,5 +1,6 @@
 package com.graphics.vehiculo;
 
+import com.graphics.mundo.Rectangulo;
 import com.graphics.mundo.Transitable;
 
 /**
@@ -13,8 +14,10 @@ public class Chata {
     public static final float DISTANCIA_ENGANCHE = 1.5f;
     /** Distancia de la bola de enganche al centro de la chata (lanza + media caja). */
     public static final float LARGO_LANZA = 1.9f;
-    /** Radio del círculo de colisión: cubre la caja de carga. */
-    public static final float RADIO = 1.2f;
+    /** Medio ancho de la caja contando ruedas y guardabarros (forma de colisión; la lanza no cuenta). */
+    public static final float MEDIO_ANCHO = 0.97f;
+    /** Medio largo de la caja de carga, con las luces traseras. */
+    public static final float MEDIO_LARGO = 1.06f;
     /** Ángulo máximo entre auto y chata (unos 70°): evita que se doble sobre el auto. */
     public static final float ANGULO_MAXIMO = 1.22f;
 
@@ -32,7 +35,12 @@ public class Chata {
     /** ¿Puede la chata acompañar al auto hasta esa posición sin chocar? No la mueve. */
     public boolean puedeSeguir(float autoX, float autoZ, float anguloAuto, Transitable via) {
         float[] siguiente = calcular(autoX, autoZ, anguloAuto);
-        return via.permite(x, z, siguiente[0], siguiente[1], RADIO);
+        return via.permite(forma(), new Rectangulo(siguiente[0], siguiente[1], siguiente[2], MEDIO_ANCHO, MEDIO_LARGO));
+    }
+
+    /** Rectángulo de colisión de la caja de carga. */
+    public Rectangulo forma() {
+        return new Rectangulo(x, z, angulo, MEDIO_ANCHO, MEDIO_LARGO);
     }
 
     /** Arrastra la chata detrás del auto ya movido. */

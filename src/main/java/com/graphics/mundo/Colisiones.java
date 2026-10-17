@@ -1,31 +1,32 @@
 package com.graphics.mundo;
 
+import java.util.List;
+
 /**
- * Colisiones de un círculo (el vehículo) contra los bordes del mapa y las manzanas (incluida la acera).
+ * Colisiones de un vehículo (rectángulo girado) contra los bordes del mapa y las manzanas (incluida la acera).
  */
 public class Colisiones implements Transitable {
 
     private final MapaCiudad mapa;
+    private final List<Rectangulo> manzanas;
 
     public Colisiones(MapaCiudad mapa) {
         this.mapa = mapa;
+        float mitad = MapaCiudad.CELDA / 2;
+        manzanas = mapa.manzanas().stream()
+            .map(manzana -> new Rectangulo(manzana.x(), manzana.z(), 0, mitad, mitad))
+            .toList();
     }
 
-    /** ¿Cabe un círculo de {@code radio} en (x, z) sin tocar manzanas ni salir del mapa? */
-    public boolean puedeCircular(float x, float z, float radio) {
-        float limitePermitido = mapa.limite() - radio;
-        if (Math.abs(x) > limitePermitido || Math.abs(z) > limitePermitido) {
+    /** ¿Cabe el rectángulo sin tocar manzanas ni salir del mapa? */
+    public boolean puedeUbicar(Rectangulo forma) {
+        float limite = mapa.limite();
+        // Lo que sobresale el rectángulo en X y en Z según su giro.
+        if (Math.abs(forma.x()) + forma.alcance(1, 0) > limite || Math.abs(forma.z()) + forma.alcance(0, 1) > limite) {
             return false;
         }
-        float mitadManzana = MapaCiudad.CELDA / 2;
-        for (Manzana manzana : mapa.manzanas()) {
-            // Punto del rectángulo de la manzana más cercano al centro del círculo.
-            float cercaX = Math.max(manzana.x() - mitadManzana, Math.min(x, manzana.x() + mitadManzana));
-            float cercaZ = Math.max(manzana.z() - mitadManzana, Math.min(z, manzana.z() + mitadManzana));
-            float distanciaX = x - cercaX;
-            float distanciaZ = z - cercaZ;
-            // Comparar distancias al cuadrado evita calcular la raíz.
-            if (distanciaX * distanciaX + distanciaZ * distanciaZ < radio * radio) {
+        for (Rectangulo manzana : manzanas) {
+            if (forma.choca(manzana)) {
                 return false;
             }
         }
@@ -33,7 +34,7 @@ public class Colisiones implements Transitable {
     }
 
     @Override
-    public boolean permite(float desdeX, float desdeZ, float haciaX, float haciaZ, float radio) {
-        return puedeCircular(haciaX, haciaZ, radio);
+    public boolean permite(Rectangulo desde, Rectangulo hacia) {
+        return puedeUbicar(hacia);
     }
 }
