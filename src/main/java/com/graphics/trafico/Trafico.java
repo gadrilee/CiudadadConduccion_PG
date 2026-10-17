@@ -6,6 +6,7 @@ import java.util.List;
 import com.graphics.mundo.MapaCiudad;
 import com.graphics.mundo.Transitable;
 import com.graphics.vehiculo.Auto;
+import com.graphics.vehiculo.Chata;
 
 /**
  * Conjunto de autos autónomos. Cada uno frena si tiene algo justo delante y el jugador
@@ -37,7 +38,7 @@ public class Trafico implements Transitable {
     /** @param jugador auto del usuario, o {@code null} para simular solo el tráfico */
     public void actualizar(float deltaTime, Auto jugador) {
         for (VehiculoAutonomo vehiculo : vehiculos) {
-            boolean jugadorDelante = jugador != null && estaDelante(vehiculo, jugador.x(), jugador.z());
+            boolean jugadorDelante = jugador != null && jugadorDelante(vehiculo, jugador);
             boolean vehiculoDelante = false;
             for (VehiculoAutonomo otro : vehiculos) {
                 if (otro != vehiculo && estaDelante(vehiculo, otro.x(), otro.z())) {
@@ -47,6 +48,13 @@ public class Trafico implements Transitable {
             }
             vehiculo.actualizar(deltaTime, jugadorDelante, vehiculoDelante);
         }
+    }
+
+    /** El jugador estorba si su auto o su chata están delante. */
+    private static boolean jugadorDelante(VehiculoAutonomo vehiculo, Auto jugador) {
+        Chata chata = jugador.chata();
+        return estaDelante(vehiculo, jugador.x(), jugador.z())
+            || (chata != null && estaDelante(vehiculo, chata.x(), chata.z()));
     }
 
     /** Proyecta el obstáculo sobre la dirección de avance: distancia hacia delante y desvío lateral. */
@@ -72,6 +80,17 @@ public class Trafico implements Transitable {
             }
         }
         return true;
+    }
+
+    /** ¿Algún auto toca un círculo de {@code radio} en (x, z)? Sirve para elegir el sonido del choque. */
+    public boolean toca(float x, float z, float radio) {
+        float minimo = radio + VehiculoAutonomo.RADIO;
+        for (VehiculoAutonomo vehiculo : vehiculos) {
+            if (distanciaCuadrada(x, z, vehiculo) < minimo * minimo) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static float distanciaCuadrada(float x, float z, VehiculoAutonomo vehiculo) {

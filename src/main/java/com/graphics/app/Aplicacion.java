@@ -17,6 +17,7 @@ import com.graphics.ui.DatosHud;
 import com.graphics.ui.Hud;
 import com.graphics.ui.Menu;
 import com.graphics.vehiculo.Auto;
+import com.graphics.vehiculo.Chata;
 import com.graphics.vehiculo.ControlesAuto;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -37,7 +38,8 @@ public class Aplicacion {
     // Modelo (sin OpenGL).
     private final MapaCiudad mapa = new MapaCiudad();
     private final Colisiones colisiones = new Colisiones(mapa);
-    private final Auto auto = new Auto();
+    private final Chata chata = new Chata();
+    private final Auto auto = new Auto(chata);
     private final Iluminacion iluminacion = new Iluminacion(mapa);
     private final List<Semaforo> semaforos = Semaforo.distribuir(mapa);
     private final Entregas entregas = new Entregas();
@@ -193,7 +195,8 @@ public class Aplicacion {
         if (choque && esperaChoque == 0) {
             float delanteX = auto.x() + auto.frenteX() * (Auto.RADIO + 0.5f);
             float delanteZ = auto.z() + auto.frenteZ() * (Auto.RADIO + 0.5f);
-            boolean contraAuto = !trafico.permite(auto.x(), auto.z(), delanteX, delanteZ, Auto.RADIO);
+            boolean contraAuto = !trafico.permite(auto.x(), auto.z(), delanteX, delanteZ, Auto.RADIO)
+                || trafico.toca(chata.x(), chata.z(), Chata.RADIO + 0.5f);
             sonidos.efecto(contraAuto ? Sonidos.CHOQUE_AUTO : Sonidos.CHOQUE_EDIFICIO);
             esperaChoque = PAUSA_ENTRE_CHOQUES;
         }

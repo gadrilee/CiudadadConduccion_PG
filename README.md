@@ -104,6 +104,13 @@ y la escala del minimapa (`uMitadMapa`) leen ese valor. Cambiar la matriz a 13x1
   ayuda de controles (H); pantalla de inicio, pausa (P), aviso de entrega completada y pantalla de victoria.
   El texto usa una fuente pixelada propia de 5x7 definida en código.
 - **Presentación urbana:** sectores con nombre, carteles en la ciudad y mobiliario adicional.
+- **Chata (remolque):** el auto arrastra una chata de madera con marco rojo (1.3 x 2 m, un eje y dos ruedas).
+  Se modela como una **barra rígida**: el enganche está 1.5 m detrás del centro del auto y la chata se coloca
+  siempre a 1.9 m del enganche, mirando hacia él. Por eso en las curvas gira menos que el auto y "corta" la
+  esquina por dentro, como un remolque real. El ángulo entre ambos se limita a unos 70° para que no se doble
+  sobre el auto. Tiene su propio círculo de colisión (radio 1.2): si la chata chocaría contra un edificio,
+  el borde o un auto, el paso se rechaza y **el auto se detiene**. La carga reduce la aceleración al 80 %,
+  sus luces traseras se encienden con los faros, aparece en el minimapa y el tráfico frena si la tiene delante.
 
 ## Arquitectura
 
@@ -114,7 +121,7 @@ com.graphics
   Main                punto de entrada
   app/                Aplicacion (ciclo de vida y orquestación), Ventana, Entrada, EstadoJuego, Sonidos
   mundo/              MapaCiudad, Manzana, TipoCelda, Sector, Colisiones, Transitable
-  vehiculo/           Auto (física), ControlesAuto
+  vehiculo/           Auto (física), Chata (remolque), ControlesAuto
   trafico/            Ruta, VehiculoAutonomo, Trafico
   juego/              Entregas
   iluminacion/        Iluminacion, Farola, Semaforo
@@ -132,7 +139,8 @@ Cada cuadro: eventos, `deltaTime`, actualización del modelo, escena 3D, minimap
 - Los semáforos son decorativos: ni el jugador ni el tráfico se detienen en rojo.
 - El tráfico sigue rutas fijas. Si dos autos quedan bloqueados entre sí durante más de 3 s, uno ignora al otro
   un momento para evitar un bloqueo permanente (pueden superponerse brevemente).
-- La colisión del auto es un círculo; al chocar se detiene, sin rebote.
+- La colisión del auto y de la chata es un círculo cada uno; al chocar se detienen, sin rebote. El auto y
+  su chata no chocan entre sí: lo evita el límite de ángulo del enganche.
 - No hay peatones ni ruedas animadas. El audio usa WAV PCM de 16 bits con `javax.sound.sampled` (el JDK no reproduce MP3).
 
 ## Recursos externos

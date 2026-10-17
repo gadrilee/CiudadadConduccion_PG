@@ -19,13 +19,24 @@ public class Auto {
     private static final float VELOCIDAD_MAXIMA = 16;
     private static final float VELOCIDAD_REVERSA = -6;
     private static final float SENSIBILIDAD_GIRO = 0.11f;
+    /** Fracción de la aceleración que queda al arrastrar la chata (el peso extra la reduce). */
+    private static final float FACTOR_CARGA = 0.8f;
 
+    /** Remolque enganchado, o {@code null} si el auto va solo. */
+    private final Chata chata;
     private float x;
     private float z;
     private float angulo;
     private float velocidad;
 
+    /** Auto sin remolque. */
     public Auto() {
+        this(null);
+    }
+
+    /** Auto que arrastra {@code chata} (puede ser {@code null}). */
+    public Auto(Chata chata) {
+        this.chata = chata;
         reiniciar();
     }
 
@@ -40,15 +51,20 @@ public class Auto {
         this.z = z;
         this.angulo = angulo;
         this.velocidad = velocidad;
+        if (chata != null) {
+            chata.alinear(x, z, angulo);
+        }
     }
 
     /**
-     * Avanza la simulación {@code deltaTime} segundos. Si el destino está ocupado, el auto se detiene.
+     * Avanza la simulación {@code deltaTime} segundos. Si el destino del auto o de su chata
+     * está ocupado, el auto se detiene.
      *
      * @return true si iba en movimiento y una colisión rechazó el paso
      */
     public boolean actualizar(float deltaTime, ControlesAuto controles, Transitable via) {
-        velocidad += controles.acelerador() * ACELERACION * deltaTime;
+        float aceleracion = chata != null ? ACELERACION * FACTOR_CARGA : ACELERACION;
+        velocidad += controles.acelerador() * aceleracion * deltaTime;
         float resistencia = controles.freno() ? RESISTENCIA_FRENO : RESISTENCIA;
         // Decaimiento exponencial: la fracción conservada depende del tiempo, no de los fps.
         velocidad *= (float) Math.exp(-resistencia * deltaTime);
@@ -59,9 +75,15 @@ public class Auto {
 
         float siguienteX = x + frenteX() * velocidad * deltaTime;
         float siguienteZ = z + frenteZ() * velocidad * deltaTime;
-        if (via.permite(x, z, siguienteX, siguienteZ, RADIO)) {
+        // El paso solo se acepta si caben los dos: un choque de la chata también frena al auto.
+        boolean autoLibre = via.permite(x, z, siguienteX, siguienteZ, RADIO);
+        boolean chataLibre = chata == null || chata.puedeSeguir(siguienteX, siguienteZ, angulo, via);
+        if (autoLibre && chataLibre) {
             x = siguienteX;
             z = siguienteZ;
+            if (chata != null) {
+                chata.seguir(x, z, angulo);
+            }
             return false;
         }
         boolean choque = Math.abs(velocidad) > 0.05f;
@@ -96,5 +118,10 @@ public class Auto {
 
     public float velocidad() {
         return velocidad;
+    }
+
+    /** Remolque enganchado, o {@code null} si no tiene. */
+    public Chata chata() {
+        return chata;
     }
 }

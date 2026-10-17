@@ -8,6 +8,7 @@ import com.graphics.mundo.MapaCiudad;
 import com.graphics.trafico.Trafico;
 import com.graphics.trafico.VehiculoAutonomo;
 import com.graphics.vehiculo.Auto;
+import com.graphics.vehiculo.Chata;
 
 /**
  * Compone la escena 3D completa. En el minimapa solo dibuja la ciudad base;
@@ -46,6 +47,10 @@ public class DibujoEscena {
         decoracion.dibujar(iluminacion.esNoche(), tiempo, semaforos);
         luces.dibujarFarolas(iluminacion);
         vehiculo.dibujar(auto.x(), auto.z(), auto.angulo(), 0.95f, 0.24f, 0.12f, iluminacion.farosEncendidos());
+        Chata chata = auto.chata();
+        if (chata != null) {
+            vehiculo.dibujarChata(chata.x(), chata.z(), chata.angulo(), iluminacion.farosEncendidos());
+        }
         for (VehiculoAutonomo otro : trafico.vehiculos()) {
             vehiculo.dibujar(otro.x(), otro.z(), otro.angulo(), otro.rojo(), otro.verde(), otro.azul(),
                 iluminacion.esNoche());

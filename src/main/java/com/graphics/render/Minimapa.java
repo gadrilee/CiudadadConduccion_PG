@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.graphics.trafico.VehiculoAutonomo;
 import com.graphics.vehiculo.Auto;
+import com.graphics.vehiculo.Chata;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -65,6 +66,10 @@ public class Minimapa {
         }
         for (VehiculoAutonomo vehiculo : trafico) {
             render.cajaGirada(vehiculo.x(), 24, vehiculo.z(), 2.0f, 0.1f, 3.0f, 0.92f, 0.92f, 0.92f, vehiculo.angulo());
+        }
+        Chata chata = auto.chata();
+        if (chata != null) {
+            render.cajaGirada(chata.x(), 24.5f, chata.z(), 2.0f, 0.1f, 2.6f, 0.05f, 0.6f, 0.6f, chata.angulo());
         }
         render.cajaGirada(auto.x(), 25, auto.z(), 2.6f, 0.1f, 3.6f, 0.1f, 1, 1, auto.angulo());
         float puntaX = auto.x() + auto.frenteX() * 2.4f;
