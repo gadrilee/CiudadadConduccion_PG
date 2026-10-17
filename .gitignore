@@ -1,0 +1,8 @@
+target/
+.DS_Store
+~/
+.github/modernize/
+.idea/
+*.iml
+.vscode/
+AGENTES.md 
