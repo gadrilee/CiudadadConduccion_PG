@@ -10,7 +10,11 @@ cubo unitario; no se usan imágenes ni modelos externos.
 
 Ejecución completa del juego, desde la pantalla de inicio hasta la victoria:
 
-<video src="src/main/resources/VideoDemo.mp4" controls width="720"></video>
+
+
+https://github.com/user-attachments/assets/0606b4b7-abc8-4f88-92b8-5b2648a5f413
+
+
 
 Si el video no se reproduce en la vista previa, se puede abrir directamente:
 [VideoDemo.mp4](src/main/resources/VideoDemo.mp4).
